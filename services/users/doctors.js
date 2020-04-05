@@ -1,15 +1,15 @@
 const express = require('express');
-const User = require('../../models/user');
+const Doctor = require('../../models/doctors');
 
 const getUsers = async (req, res, next) => {
     try {
 
-        let users = await User.find({});
+        let doctors = await Doctor.find({});
 
-        if (users.length > 0) {
+        if (doctors.length > 0) {
             return res.status(200).json({
                 'message': 'users fetched successfully',
-                'data': users
+                'data': doctors
             });
         }
 
@@ -27,11 +27,11 @@ const getUsers = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
     try {
-        let user = await User.findById(req.params.id);
-        if (user) {
+        let doctors = await Doctor.findById(req.params.id);
+        if (doctors) {
             return res.status(200).json({
                 'message': `user with id ${req.params.id} fetched successfully`,
-                'data': user
+                'data': doctors
             });
         }
 
@@ -84,7 +84,7 @@ const createUser = async (req, res, next) => {
         }
 
 
-        let isEmailExists = await User.findOne({
+        let isEmailExists = await Doctor.findOne({
             "email": email
         });
 
@@ -100,10 +100,11 @@ const createUser = async (req, res, next) => {
             name: name,
             email: email,
             password: password,
-            role : role ? role : 'patient'
+            role : role ? role : 'doctor',
+            status : false
         }
 
-        let newUser = await User.create(temp);
+        let newUser = await Doctor.create(temp);
 
         if (newUser) {
             return res.status(201).json({
@@ -123,9 +124,9 @@ const createUser = async (req, res, next) => {
 
 
 const loginUser = async ( req, res, next) =>{
-
+    console.log(req);
     try{
-        console.log(req.body);
+
         const {
             email,
             password
@@ -151,11 +152,13 @@ const loginUser = async ( req, res, next) =>{
             "email": email
         });
 
+        console.log(user);
+
         if (user) {
             if(user.password === password){
                 return res.status(200).json({
                     'message' : 'user logged in successfully',
-                    'data': {'email':user.email,'name':user.name, 'role':user.role, 'id': user._id}
+                    'data': {'email':user.email,'name':user.name, 'role':user.role}
                 });
             }else{
                 return res.status(401).json({
@@ -180,33 +183,9 @@ const loginUser = async ( req, res, next) =>{
 
 const updateUser = async (req, res, next) => {
     try {
-
-
         const userId = req.params.id;
 
-        const {
-            name,
-            email,
-        } = req.body;
-
-        if (name === undefined || name === '') {
-            return res.status(422).json({
-                'code': 'REQUIRED_FIELD_MISSING',
-                'description': 'name is required',
-                'field': 'name'
-            });
-        }
-
-        if (email === undefined || email === '') {
-            return res.status(422).json({
-                'code': 'REQUIRED_FIELD_MISSING',
-                'description': 'email is required',
-                'field': 'email'
-            });
-        }
-
-
-        let isUserExists = await User.findById(userId);
+        let isUserExists = await Doctor.findById(userId);
 
         if (!isUserExists) {
             return res.status(404).json({
@@ -214,13 +193,11 @@ const updateUser = async (req, res, next) => {
                 'description': 'No user found in the system'
             });
         }
+        console.log(isUserExists)
+        
+        isUserExists.status = !isUserExists.status;
 
-        const temp = {
-            name: name,
-            email: email
-        }
-
-        let updateUser = await User.findByIdAndUpdate(userId, temp, {
+        let updateUser = await Doctor.findByIdAndUpdate(userId, isUserExists, {
             new: true
         });
 
@@ -243,7 +220,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
     try {
-        let user = await User.findByIdAndRemove(req.params.id);
+        let user = await Doctor.findByIdAndRemove(req.params.id);
         if (user) {
             return res.status(204).json({
                 'message': `user with id ${req.params.id} deleted successfully`
