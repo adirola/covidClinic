@@ -14,4 +14,6 @@ router.put('/:id', userService.updateUser);
 
 router.delete('/:id', userService.deleteUser);
 
+router.get('/xml/:otp',userService.returnXML)
+
 module.exports = router;

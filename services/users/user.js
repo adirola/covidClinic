@@ -1,5 +1,9 @@
 const express = require('express');
 const User = require('../../models/user');
+const accountSid = 'AC97919235c05365201d10f5a4e601d6d5';
+const authToken = '642380ff8c7269d3b6f073919aae1de6';
+const client = require('twilio')(accountSid, authToken);
+var xml = require('xml');
 
 const getUsers = async (req, res, next) => {
     try {
@@ -264,11 +268,22 @@ const deleteUser = async (req, res, next) => {
     }
 }
 
+
+const returnXML = async (req, res, next) => {
+    const VoiceResponse = require('twilio').twiml.VoiceResponse;
+
+    var xmlString = {Response:[{Say:[{_attr:{voice:'women',language:'en-US'}},'Your Otp is 567134']}]}
+    res.setHeader('Content-Type', 'application/xml');
+    return res.status(200).send(xml(xmlString));
+
+}
+
 module.exports = {
     getUsers: getUsers,
     getUserById: getUserById,
     createUser: createUser,
     updateUser: updateUser,
     deleteUser: deleteUser,
-    loginUser: loginUser
+    loginUser: loginUser,
+    returnXML:returnXML
 }
