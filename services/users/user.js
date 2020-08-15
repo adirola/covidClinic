@@ -1,7 +1,7 @@
 const express = require('express');
 const User = require('../../models/user');
-const accountSid = 'AC97919235c05365201d10f5a4e601d6d5';
-const authToken = '642380ff8c7269d3b6f073919aae1de6';
+const accountSid = '';
+const authToken = '';
 const client = require('twilio')(accountSid, authToken);
 var xml = require('xml');
 
